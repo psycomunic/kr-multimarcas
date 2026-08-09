@@ -106,6 +106,7 @@ type LinhaPedido = {
   items: {
     id: string
     productId: string | null
+    slug: string | null
     name: string
     brand: string
     size: string
@@ -136,6 +137,7 @@ function mapPedido(r: LinhaPedido): Order {
     items: r.items.map((i) => ({
       id: i.id,
       productId: i.productId,
+      slug: i.slug ?? null,
       name: i.name,
       brand: i.brand,
       size: i.size,
@@ -552,6 +554,7 @@ export type PedidoInput = {
   shipping: number
   items: {
     productId: string | null
+    slug: string | null
     name: string
     brand: string
     size: string

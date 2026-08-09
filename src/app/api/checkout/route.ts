@@ -33,6 +33,7 @@ export async function POST(request: Request) {
 
   const itensPedido: {
     productId: string | null
+    slug: string | null
     name: string
     brand: string
     size: string
@@ -75,6 +76,7 @@ export async function POST(request: Request) {
 
     itensPedido.push({
       productId: produto.id.startsWith('demo-') ? null : produto.id,
+      slug: produto.slug,
       name: produto.name,
       brand: produto.brand,
       size: variacao.size,

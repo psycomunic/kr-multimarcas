@@ -186,6 +186,13 @@ src/
 - **Pop-up do WhatsApp.** A janela é aberta no clique (antes do `await`) e só depois recebe a
   URL final, senão o bloqueador de pop-up barraria. A tela de sucesso reconstrói o mesmo link no
   servidor como plano B.
+- **Foto do produto na mensagem.** Um link `wa.me?text=` só transporta texto — a API não permite
+  anexar arquivo. A imagem aparece pela *prévia de link*: cada item da mensagem leva a URL do seu
+  produto, e o WhatsApp lê as tags Open Graph da página para montar o cartão com a foto. Duas
+  consequências práticas: só funciona com `NEXT_PUBLIC_SITE_URL` apontando para um domínio
+  público (em `localhost` não há prévia), e o WhatsApp gera prévia apenas para o **primeiro**
+  link — a foto exibida é a do primeiro item do pedido. Por isso `order_items` guarda o `slug`:
+  o link continua válido mesmo que o produto seja renomeado depois.
 - **Estoque por variação.** O campo `stock` do produto é sempre a soma das variações, recalculado
   a cada gravação.
 - **Filtros em memória.** O banco faz o filtro grosso (gênero, categoria) e o resto — tamanho,

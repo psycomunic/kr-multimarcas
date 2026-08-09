@@ -98,6 +98,9 @@ model OrderItem {
   id        String  @id @default(uuid()) @db.Uuid
   orderId   String  @map("order_id") @db.Uuid
   productId String? @map("product_id") @db.Uuid
+  /// Guardado junto do item para remontar o link do produto na mensagem do
+  /// WhatsApp mesmo que o produto seja renomeado ou saia do catálogo depois.
+  slug      String?
   name      String
   brand     String
   size      String

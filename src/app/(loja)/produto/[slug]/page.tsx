@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 
 import { CardProduto } from '@/components/loja/card-produto'
 import { DetalheProduto } from '@/components/loja/detalhe-produto'
+import { formatBRL } from '@/lib/format'
 import { buscarProdutoPorSlug, buscarRelacionados } from '@/lib/repo'
 import { estoqueTotal, precoFinal, LABEL_CATEGORIA } from '@/lib/types'
 
@@ -18,18 +19,25 @@ export async function generateMetadata({
   if (!produto) return { title: 'Produto não encontrado' }
 
   const descricao = produto.description.slice(0, 155)
-  const imagem = produto.images[0]?.url
+
+  // Esta é a imagem que o WhatsApp mostra na prévia quando o link do produto
+  // vai na mensagem do pedido — por isso a foto do produto, e não a logo.
+  const foto = produto.images[0]?.url
 
   return {
     title: `${produto.name} — ${produto.brand}`,
-    description: descricao,
+    description: `${produto.brand} · ${descricao}`,
     alternates: { canonical: `/produto/${produto.slug}` },
     openGraph: {
       type: 'website',
       title: `${produto.name} — ${produto.brand}`,
-      description: descricao,
+      description: `${formatBRL(precoFinal(produto))} · ${descricao}`,
       url: `${siteUrl}/produto/${produto.slug}`,
-      images: imagem ? [{ url: imagem, width: 900, height: 1200, alt: produto.name }] : undefined,
+      images: foto ? [{ url: foto, width: 900, height: 1200, alt: produto.name }] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      images: foto ? [foto] : undefined,
     },
   }
 }

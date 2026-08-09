@@ -15,7 +15,21 @@ export function linkWhatsApp(numero: string, mensagem: string): string {
   return `https://wa.me/${destino}?text=${encodeURIComponent(mensagem)}`
 }
 
-/** Mensagem completa do pedido, no formato oficial da KR Multimarcas. */
+/**
+ * URL pública do site. Precisa ser um domínio real para o WhatsApp conseguir
+ * ler a página e montar a prévia — `localhost` nunca gera imagem.
+ */
+const urlBase = process.env.NEXT_PUBLIC_SITE_URL || ''
+
+/**
+ * Mensagem completa do pedido, no formato oficial da KR Multimarcas.
+ *
+ * SOBRE A FOTO DO PRODUTO: um link `wa.me?text=` só transporta texto — a API
+ * não permite anexar arquivo. A imagem chega pela *prévia de link*: o WhatsApp
+ * busca o primeiro link da mensagem, lê as tags Open Graph da página e mostra
+ * um cartão com a foto. Por isso cada item leva a URL do seu produto, e a do
+ * primeiro item é a que vira a imagem da mensagem.
+ */
 export function mensagemPedido(pedido: Order): string {
   const linhas: string[] = []
 
@@ -27,6 +41,7 @@ export function mensagemPedido(pedido: Order): string {
     const totalItem = item.qty * item.unitPrice
     linhas.push(`• ${item.qty}x ${item.name} (${item.brand})`)
     linhas.push(`   Tam ${item.size} · cor ${item.colorName} — R$ ${formatNumeroBRL(totalItem)}`)
+    if (item.slug && urlBase) linhas.push(`   ${urlBase}/produto/${item.slug}`)
   }
 
   linhas.push('')

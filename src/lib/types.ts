@@ -81,6 +81,8 @@ export type Product = {
 export type OrderItem = {
   id: string
   productId: string | null
+  /** Usado para montar o link do produto na mensagem do WhatsApp. */
+  slug: string | null
   name: string
   brand: string
   size: string
