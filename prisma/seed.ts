@@ -15,6 +15,31 @@ import { PRODUTOS_SEED } from '../src/lib/seed-data'
 const prisma = new PrismaClient()
 
 async function main() {
+  // Trava de segurança: este seed insere um catálogo FICTÍCIO, útil só para
+  // avaliar a interface num banco vazio. Com a loja em produção, rodar isso
+  // sem querer misturaria produtos inventados ao catálogo real.
+  const confirmado =
+    process.argv.includes('--confirmar') || process.env.SEED_DEMO === '1'
+
+  const jaTemProdutos = await prisma.product.count()
+
+  if (jaTemProdutos > 0 && !confirmado) {
+    console.error(
+      [
+        '',
+        `O banco já tem ${jaTemProdutos} produto(s) cadastrado(s).`,
+        '',
+        'Este seed cria um catálogo de DEMONSTRAÇÃO (18 produtos fictícios) e',
+        'não deve ser usado numa loja em operação.',
+        '',
+        'Se você realmente quer inserir os produtos de exemplo, rode:',
+        '  npm run db:seed -- --confirmar',
+        '',
+      ].join('\n'),
+    )
+    process.exit(1)
+  }
+
   const skus = PRODUTOS_SEED.map((p) => p.sku)
 
   console.log('Limpando produtos do seed anterior…')
