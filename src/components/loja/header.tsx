@@ -8,18 +8,18 @@ import { useEffect, useState } from 'react'
 import { Logo } from '@/components/ui/logo'
 import { useConfiguracoes } from '@/components/providers/configuracoes-provider'
 import { cn } from '@/lib/cn'
+import type { Colecao } from '@/lib/colecoes'
 import { formatBRL } from '@/lib/format'
 import { useHidratado } from '@/lib/hooks'
 import { quantidadeCarrinho, useCarrinho } from '@/store/carrinho'
 
-const NAVEGACAO = [
-  { rotulo: 'Feminino', href: '/loja?genero=feminino' },
-  { rotulo: 'Masculino', href: '/loja?genero=masculino' },
-  { rotulo: 'Roupas', href: '/loja?categoria=roupas' },
-  { rotulo: 'Calçados', href: '/loja?categoria=calcados' },
-  { rotulo: 'Acessórios', href: '/loja?categoria=acessorios' },
-  { rotulo: 'Ofertas', href: '/loja?ofertas=1', destaque: true },
-]
+/** O menu vem das categorias reais da loja (as que têm produto ativo). */
+function montarNavegacao(categorias: Colecao[]) {
+  return [
+    ...categorias.map((c) => ({ rotulo: c.titulo, href: `/loja?colecao=${c.slug}`, destaque: false })),
+    { rotulo: 'Ofertas', href: '/loja?ofertas=1', destaque: true },
+  ]
+}
 
 export function TopBar() {
   const { freeShippingThreshold } = useConfiguracoes()
@@ -34,7 +34,8 @@ export function TopBar() {
   )
 }
 
-export function Header() {
+export function Header({ categorias }: { categorias: Colecao[] }) {
+  const NAVEGACAO = montarNavegacao(categorias)
   const router = useRouter()
   // `usePathname` em vez de `useSearchParams` de propósito: este componente vive
   // no layout, e useSearchParams forçaria uma Suspense boundary em toda página

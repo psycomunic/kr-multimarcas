@@ -21,10 +21,17 @@ import { Logo } from '@/components/ui/logo'
 import { cn } from '@/lib/cn'
 
 const ITENS = [
-  { href: '/admin', rotulo: 'Dashboard', Icone: LayoutDashboard, exato: true },
-  { href: '/admin/produtos', rotulo: 'Produtos', Icone: Package },
+  { href: '/admin', rotulo: 'Início', Icone: LayoutDashboard, exato: true },
   { href: '/admin/pedidos', rotulo: 'Pedidos', Icone: ShoppingCart },
-  { href: '/admin/estoque', rotulo: 'Estoque', Icone: Boxes },
+  {
+    href: '/admin/produtos',
+    rotulo: 'Produtos',
+    Icone: Package,
+    subitens: [
+      { href: '/admin/colecoes', rotulo: 'Categorias' },
+      { href: '/admin/estoque', rotulo: 'Estoque' },
+    ],
+  },
   { href: '/admin/integracoes', rotulo: 'Integrações', Icone: Plug },
   { href: '/admin/configuracoes', rotulo: 'Configurações', Icone: Settings },
 ]
@@ -50,32 +57,62 @@ export function BarraLateral({ pedidosNovos }: { pedidosNovos: number }) {
       </div>
 
       <nav className="flex-1 space-y-1 px-3" aria-label="Seções do painel">
-        {ITENS.map(({ href, rotulo, Icone, exato }) => {
+        {ITENS.map(({ href, rotulo, Icone, exato, subitens }) => {
           const ativo = exato ? pathname === href : pathname.startsWith(href)
+          // O grupo abre quando a seção principal ou qualquer subitem está ativo.
+          const grupoAberto =
+            ativo || (subitens ?? []).some((s) => pathname.startsWith(s.href))
+
           return (
-            <Link
-              key={href}
-              href={href}
-              onClick={() => setAberta(false)}
-              aria-current={ativo ? 'page' : undefined}
-              className={cn(
-                'flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition',
-                ativo ? 'bg-gold text-ink' : 'text-white/70 hover:bg-white/10 hover:text-white',
+            <div key={href}>
+              <Link
+                href={href}
+                onClick={() => setAberta(false)}
+                aria-current={ativo ? 'page' : undefined}
+                className={cn(
+                  'flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition',
+                  ativo ? 'bg-gold text-ink' : 'text-white/70 hover:bg-white/10 hover:text-white',
+                )}
+              >
+                <Icone className="h-[18px] w-[18px]" />
+                {rotulo}
+                {href === '/admin/pedidos' && pedidosNovos > 0 && (
+                  <span
+                    className={cn(
+                      'ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold',
+                      ativo ? 'bg-ink text-gold' : 'bg-gold text-ink',
+                    )}
+                  >
+                    {pedidosNovos}
+                  </span>
+                )}
+              </Link>
+
+              {subitens && grupoAberto && (
+                <ul className="mb-1 ml-[30px] mt-1 space-y-0.5 border-l border-white/10 pl-3">
+                  {subitens.map((sub) => {
+                    const subAtivo = pathname.startsWith(sub.href)
+                    return (
+                      <li key={sub.href}>
+                        <Link
+                          href={sub.href}
+                          onClick={() => setAberta(false)}
+                          aria-current={subAtivo ? 'page' : undefined}
+                          className={cn(
+                            'block rounded-lg px-3 py-2 text-[13px] transition',
+                            subAtivo
+                              ? 'bg-white/10 font-medium text-gold'
+                              : 'text-white/55 hover:bg-white/5 hover:text-white',
+                          )}
+                        >
+                          {sub.rotulo}
+                        </Link>
+                      </li>
+                    )
+                  })}
+                </ul>
               )}
-            >
-              <Icone className="h-[18px] w-[18px]" />
-              {rotulo}
-              {href === '/admin/pedidos' && pedidosNovos > 0 && (
-                <span
-                  className={cn(
-                    'ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold',
-                    ativo ? 'bg-ink text-gold' : 'bg-gold text-ink',
-                  )}
-                >
-                  {pedidosNovos}
-                </span>
-              )}
-            </Link>
+            </div>
           )
         })}
       </nav>

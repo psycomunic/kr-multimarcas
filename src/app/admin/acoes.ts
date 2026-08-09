@@ -136,6 +136,7 @@ export async function importarBackupAcao(conteudo: string): Promise<ResultadoAca
         brand: produto.brand,
         gender: produto.gender,
         category: produto.category,
+        colecao: produto.colecao ?? null,
         description: produto.description,
         price: produto.price,
         salePrice: produto.salePrice ?? null,

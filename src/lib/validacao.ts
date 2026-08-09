@@ -47,6 +47,7 @@ export const produtoSchema = z.object({
   brand: z.string().trim().min(1, 'Informe a marca'),
   gender: z.enum(['feminino', 'masculino', 'unissex']),
   category: z.enum(['roupas', 'calcados', 'acessorios']),
+  colecao: z.string().nullable().optional(),
   description: z.string().trim().min(10, 'Descreva o produto em pelo menos 10 caracteres'),
   price: z.coerce.number().positive('Preço deve ser maior que zero'),
   salePrice: z.coerce.number().nonnegative().nullable().optional(),

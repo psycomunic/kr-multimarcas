@@ -10,6 +10,7 @@ import { salvarProdutoAcao } from '@/app/admin/acoes'
 import { ImagemProduto } from '@/components/loja/imagem-produto'
 import { Botao } from '@/components/ui/botao'
 import { cn } from '@/lib/cn'
+import { COLECOES } from '@/lib/colecoes'
 import { nomeDaCor } from '@/lib/cores'
 import { slugify } from '@/lib/format'
 import { CATEGORIAS, GENEROS, LABEL_CATEGORIA, LABEL_GENERO, type Product } from '@/lib/types'
@@ -46,8 +47,9 @@ export function FormularioProduto({ produto }: { produto?: Product }) {
       sku: produto?.sku ?? '',
       name: produto?.name ?? '',
       brand: produto?.brand ?? '',
-      gender: produto?.gender ?? 'feminino',
+      gender: produto?.gender ?? 'masculino',
       category: produto?.category ?? 'roupas',
+      colecao: produto?.colecao ?? '',
       description: produto?.description ?? '',
       price: produto?.price ?? 0,
       salePrice: produto?.salePrice ?? null,
@@ -106,6 +108,7 @@ export function FormularioProduto({ produto }: { produto?: Product }) {
       const resultado = await salvarProdutoAcao({
         id: produto?.id,
         ...dados,
+        colecao: dados.colecao || null,
         salePrice: dados.salePrice || null,
         slug: produto?.slug ?? slugify(dados.name),
         images: imagens,
@@ -177,7 +180,7 @@ export function FormularioProduto({ produto }: { produto?: Product }) {
 
             <div>
               <label className="label-kr" htmlFor="category">
-                Categoria
+                Tipo
               </label>
               <select id="category" {...register('category')} className="input-kr">
                 {CATEGORIAS.map((c) => (
@@ -186,6 +189,26 @@ export function FormularioProduto({ produto }: { produto?: Product }) {
                   </option>
                 ))}
               </select>
+              <p className="mt-1 text-xs text-ink-muted">
+                Classificação ampla, usada nos filtros da loja.
+              </p>
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="label-kr" htmlFor="colecao">
+                Categoria da loja
+              </label>
+              <select id="colecao" {...register('colecao')} className="input-kr">
+                <option value="">Sem categoria (não aparece na vitrine)</option>
+                {COLECOES.map((c) => (
+                  <option key={c.slug} value={c.slug}>
+                    {c.titulo}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-ink-muted">
+                É por aqui que o produto entra nas vitrines da home e no menu.
+              </p>
             </div>
 
             <div className="sm:col-span-2">

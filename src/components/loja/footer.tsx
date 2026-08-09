@@ -2,20 +2,12 @@ import Link from 'next/link'
 import { CreditCard, MapPin, MessageCircle, Truck } from 'lucide-react'
 
 import { Logo } from '@/components/ui/logo'
-import { COLECOES } from '@/lib/colecoes'
+import type { Colecao } from '@/lib/colecoes'
 import { formatBRL } from '@/lib/format'
 import type { Settings } from '@/lib/types'
 import { linkWhatsApp, mensagemAtendimento } from '@/lib/whatsapp'
 
-const COLUNAS = [
-  {
-    titulo: 'Comprar',
-    links: [
-      ...COLECOES.map((c) => ({ rotulo: c.titulo, href: `/loja?colecao=${c.slug}` })),
-      { rotulo: 'Ofertas', href: '/loja?ofertas=1' },
-    ],
-  },
-  {
+const COLUNA_AJUDA = {
     titulo: 'Ajuda',
     links: [
       { rotulo: 'Como comprar', href: '/loja' },
@@ -23,10 +15,26 @@ const COLUNAS = [
       { rotulo: 'Prazos de entrega', href: '/loja' },
       { rotulo: 'Formas de pagamento', href: '/loja' },
     ],
-  },
-]
+}
 
-export function Footer({ configuracoes }: { configuracoes: Settings }) {
+export function Footer({
+  configuracoes,
+  categorias,
+}: {
+  configuracoes: Settings
+  categorias: Colecao[]
+}) {
+  const COLUNAS = [
+    {
+      titulo: 'Comprar',
+      links: [
+        ...categorias.map((c) => ({ rotulo: c.titulo, href: `/loja?colecao=${c.slug}` })),
+        { rotulo: 'Ofertas', href: '/loja?ofertas=1' },
+      ],
+    },
+    COLUNA_AJUDA,
+  ]
+
   const whatsapp = linkWhatsApp(
     configuracoes.whatsapp,
     mensagemAtendimento(configuracoes.storeName),

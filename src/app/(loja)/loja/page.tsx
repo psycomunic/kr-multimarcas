@@ -31,8 +31,8 @@ function lerFiltros(searchParams: Busca) {
   const colecao = buscarColecao(primeiro(searchParams.colecao))
 
   return {
-    colecao,
-    termosColecao: colecao?.termos,
+    colecao: colecao?.slug,
+    dadosColecao: colecao,
     genero: GENEROS.includes(genero as Gender) ? (genero as Gender) : undefined,
     categoria: CATEGORIAS.includes(categoria as Category) ? (categoria as Category) : undefined,
     busca: primeiro(searchParams.q) || undefined,
@@ -58,8 +58,8 @@ export async function generateMetadata({
     f.categoria ? LABEL_CATEGORIA[f.categoria] : null,
   ].filter(Boolean)
 
-  const titulo = f.colecao
-    ? f.colecao.titulo
+  const titulo = f.dadosColecao
+    ? f.dadosColecao.titulo
     : f.busca
       ? `Busca por "${f.busca}"`
       : partes.length
@@ -78,7 +78,7 @@ export default async function PaginaCatalogo({ searchParams }: { searchParams: B
   const resultado = await listarCatalogo(filtros)
 
   const tituloPagina =
-    filtros.colecao?.titulo ??
+    filtros.dadosColecao?.titulo ??
     (filtros.busca
       ? `Resultados para “${filtros.busca}”`
       : [
@@ -110,8 +110,8 @@ export default async function PaginaCatalogo({ searchParams }: { searchParams: B
       </nav>
 
       <h1 className="font-display text-2xl font-bold sm:text-3xl">{tituloPagina}</h1>
-      {filtros.colecao && (
-        <p className="mt-1.5 text-sm text-ink-text">{filtros.colecao.descricao}</p>
+      {filtros.dadosColecao && (
+        <p className="mt-1.5 text-sm text-ink-text">{filtros.dadosColecao.descricao}</p>
       )}
 
       {/* Trilho de coleções — atalho entre as categorias da loja */}
@@ -120,7 +120,7 @@ export default async function PaginaCatalogo({ searchParams }: { searchParams: B
         className="scroll-suave -mx-4 mt-6 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0"
       >
         {COLECOES.map((colecao) => {
-          const ativa = filtros.colecao?.slug === colecao.slug
+          const ativa = filtros.colecao === colecao.slug
           return (
             <Link
               key={colecao.slug}

@@ -445,6 +445,7 @@ export function construirProdutosDemo(): Product[] {
       brand: p.brand,
       gender: p.gender,
       category: p.category,
+      colecao: null,
       description: p.description,
       price: p.price,
       salePrice: p.salePrice,

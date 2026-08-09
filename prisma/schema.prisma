@@ -19,6 +19,10 @@ model Product {
   brand       String
   gender      String // feminino | masculino | unissex
   category    String // roupas | calcados | acessorios
+  /// Categoria comercial da loja (slug de `lib/colecoes.ts`): bones, camisetas,
+  /// regatas, shorts… É o que organiza a vitrine; `category` continua sendo a
+  /// classificação ampla usada em filtros e no frete.
+  colecao     String?
   description String   @db.Text
   price       Decimal  @db.Decimal(10, 2)
   salePrice   Decimal? @map("sale_price") @db.Decimal(10, 2)
@@ -40,6 +44,7 @@ model Product {
 
   @@index([gender, category])
   @@index([active, featured])
+  @@index([colecao])
   @@map("products")
 }
 

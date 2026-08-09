@@ -7,7 +7,12 @@ import { BotaoLink } from '@/components/ui/botao'
 import { Selo } from '@/components/ui/selo'
 import { COLECOES } from '@/lib/colecoes'
 import { formatBRL } from '@/lib/format'
-import { obterConfiguracoes, produtosEmDestaque, produtosEmOferta } from '@/lib/repo'
+import {
+  contarPorColecao,
+  obterConfiguracoes,
+  produtosEmDestaque,
+  produtosEmOferta,
+} from '@/lib/repo'
 import { linkWhatsApp, mensagemAtendimento } from '@/lib/whatsapp'
 
 const PASSOS = [
@@ -17,11 +22,16 @@ const PASSOS = [
 ]
 
 export default async function PaginaInicial() {
-  const [destaques, ofertas, configuracoes] = await Promise.all([
+  const [destaques, ofertas, configuracoes, contagem] = await Promise.all([
     produtosEmDestaque(8),
     produtosEmOferta(4),
     obterConfiguracoes(),
+    contarPorColecao(),
   ])
+
+  // Vitrine só mostra categoria com produto — card que leva a página vazia
+  // é pior do que categoria nenhuma.
+  const categorias = COLECOES.filter((c) => (contagem[c.slug] ?? 0) > 0)
 
   const whatsapp = linkWhatsApp(
     configuracoes.whatsapp,
@@ -117,6 +127,7 @@ export default async function PaginaInicial() {
       </section>
 
       {/* --------------------------------------------------------- CATEGORIAS */}
+      {categorias.length > 0 && (
       <section className="container-kr py-14 sm:py-16">
         <div className="flex items-end justify-between gap-4">
           <div>
@@ -131,8 +142,8 @@ export default async function PaginaInicial() {
           </Link>
         </div>
 
-        <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
-          {COLECOES.map((colecao, i) => (
+        <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+          {categorias.map((colecao, i) => (
             <Link
               key={colecao.slug}
               href={`/loja?colecao=${colecao.slug}`}
@@ -163,6 +174,7 @@ export default async function PaginaInicial() {
           ))}
         </div>
       </section>
+      )}
 
       {/* ---------------------------------------------------------- DESTAQUES */}
       {destaques.length > 0 && (

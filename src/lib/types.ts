@@ -62,6 +62,8 @@ export type Product = {
   brand: string
   gender: Gender
   category: Category
+  /** Slug da categoria comercial (ver `lib/colecoes.ts`). */
+  colecao: string | null
   description: string
   price: number
   salePrice: number | null

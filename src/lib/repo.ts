@@ -42,6 +42,7 @@ type LinhaProduto = {
   brand: string
   gender: string
   category: string
+  colecao: string | null
   description: string
   price: unknown
   salePrice: unknown
@@ -69,6 +70,7 @@ function mapProduto(r: LinhaProduto): Product {
     brand: r.brand,
     gender: r.gender as Gender,
     category: r.category as Category,
+    colecao: r.colecao ?? null,
     description: r.description,
     price: num(r.price),
     salePrice: r.salePrice == null ? null : num(r.salePrice),
@@ -160,8 +162,8 @@ export type FiltrosProduto = {
   genero?: Gender
   categoria?: Category
   busca?: string
-  /** Termos de uma coleção em destaque — casam por OU (ver `lib/colecoes.ts`). */
-  termosColecao?: string[]
+  /** Slug da categoria da loja (ver `lib/colecoes.ts`). */
+  colecao?: string
   tamanhos?: string[]
   precoMin?: number
   precoMax?: number
@@ -203,14 +205,7 @@ function aplicarFiltros(produtos: Product[], f: FiltrosProduto): ResultadoCatalo
     })
   }
 
-  // Coleção usa OU (basta um termo bater), ao contrário da busca livre que usa E.
-  if (f.termosColecao?.length) {
-    const termos = f.termosColecao.map(normalizar)
-    itens = itens.filter((p) => {
-      const alvo = normalizar(`${p.name} ${p.brand} ${p.description}`)
-      return termos.some((t) => alvo.includes(t))
-    })
-  }
+  if (f.colecao) itens = itens.filter((p) => p.colecao === f.colecao)
 
   // Facetas são calculadas antes dos filtros de tamanho/preço para que o painel
   // de filtros não "perca" opções conforme o usuário seleciona.
@@ -325,6 +320,17 @@ export async function buscarRelacionados(produto: Product, limite = 4): Promise<
     .slice(0, limite)
 }
 
+/** Quantos produtos ativos existem em cada categoria da loja. */
+export async function contarPorColecao(): Promise<Record<string, number>> {
+  const produtos = await carregarAtivos({})
+  const contagem: Record<string, number> = {}
+  for (const p of produtos) {
+    if (!p.active || !p.colecao) continue
+    contagem[p.colecao] = (contagem[p.colecao] ?? 0) + 1
+  }
+  return contagem
+}
+
 /** Todos os slugs ativos — usado pelo sitemap. */
 export async function listarSlugs(): Promise<{ slug: string; updatedAt: string }[]> {
   const produtos = await carregarAtivos({})
@@ -342,6 +348,7 @@ export type ProdutoInput = {
   brand: string
   gender: Gender
   category: Category
+  colecao: string | null
   description: string
   price: number
   salePrice: number | null
@@ -399,6 +406,7 @@ export async function criarProduto(input: ProdutoInput): Promise<Product> {
       ...input,
       id,
       slug,
+      colecao: input.colecao,
       stock: estoque,
       createdAt: agora,
       updatedAt: agora,
@@ -420,6 +428,7 @@ export async function criarProduto(input: ProdutoInput): Promise<Product> {
       brand: input.brand,
       gender: input.gender,
       category: input.category,
+      colecao: input.colecao,
       description: input.description,
       price: input.price,
       salePrice: input.salePrice,
@@ -480,6 +489,7 @@ export async function atualizarProduto(id: string, input: ProdutoInput): Promise
       brand: input.brand,
       gender: input.gender,
       category: input.category,
+      colecao: input.colecao,
       description: input.description,
       price: input.price,
       salePrice: input.salePrice,
