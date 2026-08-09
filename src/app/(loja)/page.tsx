@@ -32,20 +32,35 @@ export default async function PaginaInicial() {
     <>
       {/* ---------------------------------------------------------------- HERO */}
       <section className="relative overflow-hidden bg-ink text-white">
-        {/* Banner de campanha. No mobile o corte é deslocado para a direita
-            (`object-[58%]`) porque a arte tem a logo à esquerda e a peça em
-            destaque no centro — cortando pelo meio, o produto sumiria. */}
-        <Link href="/loja" className="group block" aria-label="Ver a coleção Polo Street">
-          <div className="relative aspect-[16/10] w-full overflow-hidden sm:aspect-[21/9] lg:aspect-[2000/712]">
-            <Image
-              src="/BANNER-HOME.jpg"
-              alt="Coleção Polo Street — KR Multimarcas"
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover object-[58%_center] transition-transform duration-700 group-hover:scale-[1.02] lg:object-center"
+        {/* Banner de campanha com art direction: são duas artes diferentes, não
+            um recorte da mesma. `<picture>` (em vez de dois <Image> com
+            `hidden`) garante que o navegador baixe SÓ a arte que vai usar — com
+            classes utilitárias o arquivo escondido também seria buscado,
+            pesando justamente no mobile. As dimensões em cada fonte reservam o
+            espaço e evitam salto de layout. */}
+        <Link
+          href="/loja"
+          className="group block overflow-hidden"
+          aria-label="Ver a coleção Polo Street"
+        >
+          <picture>
+            <source
+              media="(min-width: 768px)"
+              srcSet="/BANNER-HOME.jpg"
+              width={2000}
+              height={712}
             />
-          </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/banner-home-mobile.jpg"
+              alt="Coleção Polo Street — KR Multimarcas"
+              width={900}
+              height={1200}
+              fetchPriority="high"
+              decoding="async"
+              className="w-full transition-transform duration-700 group-hover:scale-[1.02]"
+            />
+          </picture>
         </Link>
 
         <div className="container-kr relative grid gap-8 py-10 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-12 lg:py-12">
