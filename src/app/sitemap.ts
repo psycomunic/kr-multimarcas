@@ -2,9 +2,8 @@ import type { MetadataRoute } from 'next'
 
 import { COLECOES } from '@/lib/colecoes'
 import { listarSlugs } from '@/lib/repo'
+import { urlDoSite as siteUrl } from '@/lib/site'
 import { CATEGORIAS, GENEROS } from '@/lib/types'
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const produtos = await listarSlugs()

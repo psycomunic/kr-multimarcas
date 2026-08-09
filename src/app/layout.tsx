@@ -3,6 +3,8 @@ import { Inter, Sora } from 'next/font/google'
 
 import './globals.css'
 
+import { urlDoSite } from '@/lib/site'
+
 const sora = Sora({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
@@ -16,11 +18,10 @@ const inter = Inter({
   display: 'swap',
 })
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-const nomeLoja = process.env.NEXT_PUBLIC_STORE_NAME || 'KR Multimarcas'
+const nomeLoja = process.env.NEXT_PUBLIC_STORE_NAME?.trim() || 'KR Multimarcas'
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(urlDoSite),
   title: {
     default: `${nomeLoja} — moda multimarcas com atendimento no WhatsApp`,
     template: `%s · ${nomeLoja}`,

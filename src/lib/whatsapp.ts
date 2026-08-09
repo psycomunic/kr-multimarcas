@@ -15,11 +15,13 @@ export function linkWhatsApp(numero: string, mensagem: string): string {
   return `https://wa.me/${destino}?text=${encodeURIComponent(mensagem)}`
 }
 
+import { urlDoSite } from './site'
+
 /**
- * URL pública do site. Precisa ser um domínio real para o WhatsApp conseguir
- * ler a página e montar a prévia — `localhost` nunca gera imagem.
+ * Sem link de produto quando o site ainda roda em localhost: o WhatsApp não
+ * consegue ler a página para montar a prévia, e a URL só poluiria a mensagem.
  */
-const urlBase = process.env.NEXT_PUBLIC_SITE_URL || ''
+const urlBase = urlDoSite.includes('localhost') ? '' : urlDoSite
 
 /**
  * Mensagem completa do pedido, no formato oficial da KR Multimarcas.

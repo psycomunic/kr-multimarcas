@@ -6,9 +6,10 @@ import { CardProduto } from '@/components/loja/card-produto'
 import { DetalheProduto } from '@/components/loja/detalhe-produto'
 import { formatBRL } from '@/lib/format'
 import { buscarProdutoPorSlug, buscarRelacionados } from '@/lib/repo'
+import { urlDoSite } from '@/lib/site'
 import { estoqueTotal, precoFinal, LABEL_CATEGORIA } from '@/lib/types'
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+const siteUrl = urlDoSite
 
 export async function generateMetadata({
   params,
