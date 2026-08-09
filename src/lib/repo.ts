@@ -158,6 +158,8 @@ export type FiltrosProduto = {
   genero?: Gender
   categoria?: Category
   busca?: string
+  /** Termos de uma coleção em destaque — casam por OU (ver `lib/colecoes.ts`). */
+  termosColecao?: string[]
   tamanhos?: string[]
   precoMin?: number
   precoMax?: number
@@ -196,6 +198,15 @@ function aplicarFiltros(produtos: Product[], f: FiltrosProduto): ResultadoCatalo
     itens = itens.filter((p) => {
       const alvo = normalizar(`${p.name} ${p.brand} ${p.description} ${p.sku}`)
       return termos.every((t) => alvo.includes(t))
+    })
+  }
+
+  // Coleção usa OU (basta um termo bater), ao contrário da busca livre que usa E.
+  if (f.termosColecao?.length) {
+    const termos = f.termosColecao.map(normalizar)
+    itens = itens.filter((p) => {
+      const alvo = normalizar(`${p.name} ${p.brand} ${p.description}`)
+      return termos.some((t) => alvo.includes(t))
     })
   }
 

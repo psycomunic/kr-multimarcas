@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 
+import { COLECOES } from '@/lib/colecoes'
 import { listarSlugs } from '@/lib/repo'
 import { CATEGORIAS, GENEROS } from '@/lib/types'
 
@@ -20,6 +21,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${siteUrl}/loja?categoria=${c}`,
       changeFrequency: 'weekly' as const,
       priority: 0.7,
+    })),
+    ...COLECOES.map((c) => ({
+      url: `${siteUrl}/loja?colecao=${c.slug}`,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
     })),
   ]
 

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { CreditCard, MapPin, MessageCircle, Truck } from 'lucide-react'
 
 import { Logo } from '@/components/ui/logo'
+import { COLECOES } from '@/lib/colecoes'
 import { formatBRL } from '@/lib/format'
 import type { Settings } from '@/lib/types'
 import { linkWhatsApp, mensagemAtendimento } from '@/lib/whatsapp'
@@ -10,11 +11,7 @@ const COLUNAS = [
   {
     titulo: 'Comprar',
     links: [
-      { rotulo: 'Feminino', href: '/loja?genero=feminino' },
-      { rotulo: 'Masculino', href: '/loja?genero=masculino' },
-      { rotulo: 'Roupas', href: '/loja?categoria=roupas' },
-      { rotulo: 'Calçados', href: '/loja?categoria=calcados' },
-      { rotulo: 'Acessórios', href: '/loja?categoria=acessorios' },
+      ...COLECOES.map((c) => ({ rotulo: c.titulo, href: `/loja?colecao=${c.slug}` })),
       { rotulo: 'Ofertas', href: '/loja?ofertas=1' },
     ],
   },

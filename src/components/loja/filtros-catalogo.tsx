@@ -50,6 +50,7 @@ export function FiltrosCatalogo({ facetas, total }: { facetas: FacetasCatalogo; 
   }
 
   const temFiltro =
+    Boolean(params.get('colecao')) ||
     Boolean(params.get('genero')) ||
     Boolean(params.get('categoria')) ||
     Boolean(params.get('q')) ||

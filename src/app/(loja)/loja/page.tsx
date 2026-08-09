@@ -6,6 +6,7 @@ import { CardProduto } from '@/components/loja/card-produto'
 import { FiltrosCatalogo } from '@/components/loja/filtros-catalogo'
 import { BotaoLink } from '@/components/ui/botao'
 import { cn } from '@/lib/cn'
+import { buscarColecao, COLECOES } from '@/lib/colecoes'
 import { listarCatalogo, type Ordenacao } from '@/lib/repo'
 import {
   CATEGORIAS,
@@ -27,8 +28,11 @@ function lerFiltros(searchParams: Busca) {
   const genero = primeiro(searchParams.genero)
   const categoria = primeiro(searchParams.categoria)
   const ordem = primeiro(searchParams.ordem)
+  const colecao = buscarColecao(primeiro(searchParams.colecao))
 
   return {
+    colecao,
+    termosColecao: colecao?.termos,
     genero: GENEROS.includes(genero as Gender) ? (genero as Gender) : undefined,
     categoria: CATEGORIAS.includes(categoria as Category) ? (categoria as Category) : undefined,
     busca: primeiro(searchParams.q) || undefined,
@@ -54,11 +58,13 @@ export async function generateMetadata({
     f.categoria ? LABEL_CATEGORIA[f.categoria] : null,
   ].filter(Boolean)
 
-  const titulo = f.busca
-    ? `Busca por "${f.busca}"`
-    : partes.length
-      ? partes.join(' · ')
-      : 'Catálogo completo'
+  const titulo = f.colecao
+    ? f.colecao.titulo
+    : f.busca
+      ? `Busca por "${f.busca}"`
+      : partes.length
+        ? partes.join(' · ')
+        : 'Catálogo completo'
 
   return {
     title: titulo,
@@ -71,14 +77,16 @@ export default async function PaginaCatalogo({ searchParams }: { searchParams: B
   const filtros = lerFiltros(searchParams)
   const resultado = await listarCatalogo(filtros)
 
-  const tituloPagina = filtros.busca
-    ? `Resultados para “${filtros.busca}”`
-    : [
-        filtros.genero ? LABEL_GENERO[filtros.genero] : null,
-        filtros.categoria ? LABEL_CATEGORIA[filtros.categoria] : null,
-      ]
-        .filter(Boolean)
-        .join(' · ') || (filtros.somenteOfertas ? 'Ofertas' : 'Todo o catálogo')
+  const tituloPagina =
+    filtros.colecao?.titulo ??
+    (filtros.busca
+      ? `Resultados para “${filtros.busca}”`
+      : [
+          filtros.genero ? LABEL_GENERO[filtros.genero] : null,
+          filtros.categoria ? LABEL_CATEGORIA[filtros.categoria] : null,
+        ]
+          .filter(Boolean)
+          .join(' · ') || (filtros.somenteOfertas ? 'Ofertas' : 'Todo o catálogo'))
 
   /** Constrói o href de uma página mantendo os filtros atuais. */
   function hrefPagina(pagina: number) {
@@ -102,6 +110,34 @@ export default async function PaginaCatalogo({ searchParams }: { searchParams: B
       </nav>
 
       <h1 className="font-display text-2xl font-bold sm:text-3xl">{tituloPagina}</h1>
+      {filtros.colecao && (
+        <p className="mt-1.5 text-sm text-ink-text">{filtros.colecao.descricao}</p>
+      )}
+
+      {/* Trilho de coleções — atalho entre as categorias da loja */}
+      <nav
+        aria-label="Coleções"
+        className="scroll-suave -mx-4 mt-6 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0"
+      >
+        {COLECOES.map((colecao) => {
+          const ativa = filtros.colecao?.slug === colecao.slug
+          return (
+            <Link
+              key={colecao.slug}
+              href={ativa ? '/loja' : `/loja?colecao=${colecao.slug}`}
+              aria-current={ativa ? 'page' : undefined}
+              className={cn(
+                'inline-flex h-9 shrink-0 items-center rounded-xl border px-3.5 text-sm font-medium transition',
+                ativa
+                  ? 'border-ink bg-ink text-white'
+                  : 'border-line bg-white text-ink-text hover:border-ink/30',
+              )}
+            >
+              {colecao.titulo}
+            </Link>
+          )
+        })}
+      </nav>
 
       <div className="mt-8 grid gap-10 lg:grid-cols-[240px_1fr]">
         <div className="lg:sticky lg:top-28 lg:self-start">

@@ -3,36 +3,12 @@ import Link from 'next/link'
 import { ArrowRight, MessageCircle, Sparkles } from 'lucide-react'
 
 import { CardProduto, GradeProdutos } from '@/components/loja/card-produto'
-import { ImagemProduto } from '@/components/loja/imagem-produto'
 import { BotaoLink } from '@/components/ui/botao'
 import { Selo } from '@/components/ui/selo'
+import { COLECOES } from '@/lib/colecoes'
 import { formatBRL } from '@/lib/format'
 import { obterConfiguracoes, produtosEmDestaque, produtosEmOferta } from '@/lib/repo'
 import { linkWhatsApp, mensagemAtendimento } from '@/lib/whatsapp'
-
-const CATEGORIAS_DESTAQUE = [
-  {
-    titulo: 'Roupas',
-    descricao: 'Alfaiataria, jeans e básicos premium',
-    href: '/loja?categoria=roupas',
-    imagem:
-      'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    titulo: 'Calçados',
-    descricao: 'Do tênis do dia a dia ao scarpin',
-    href: '/loja?categoria=calcados',
-    imagem:
-      'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    titulo: 'Acessórios',
-    descricao: 'Bolsas, relógios e óculos que assinam o look',
-    href: '/loja?categoria=acessorios',
-    imagem:
-      'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80',
-  },
-]
 
 const PASSOS = [
   { numero: '01', titulo: 'Escolha no site', texto: 'Navegue pelo catálogo e monte sua sacola com tamanho e cor.' },
@@ -140,25 +116,32 @@ export default async function PaginaInicial() {
           </Link>
         </div>
 
-        <div className="mt-7 grid gap-4 sm:grid-cols-3">
-          {CATEGORIAS_DESTAQUE.map((categoria) => (
+        <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
+          {COLECOES.map((colecao, i) => (
             <Link
-              key={categoria.titulo}
-              href={categoria.href}
-              className="group relative aspect-[4/5] overflow-hidden rounded-3xl bg-ink sm:aspect-[3/4]"
+              key={colecao.slug}
+              href={`/loja?colecao=${colecao.slug}`}
+              className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-ink"
             >
-              <ImagemProduto
-                src={categoria.imagem}
-                alt={categoria.titulo}
-                sizes="(min-width: 640px) 33vw, 100vw"
-                className="opacity-80 transition-all duration-500 group-hover:scale-105 group-hover:opacity-95"
+              <Image
+                src={colecao.imagem}
+                alt={colecao.titulo}
+                fill
+                priority={i < 3}
+                sizes="(min-width: 1024px) 17vw, (min-width: 640px) 33vw, 50vw"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/25 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-                <h3 className="font-display text-xl font-semibold">{categoria.titulo}</h3>
-                <p className="mt-1 text-xs text-white/70">{categoria.descricao}</p>
-                <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-gold">
-                  Explorar <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/20 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-3.5 text-white lg:p-3">
+                <h3 className="font-display text-sm font-semibold leading-tight sm:text-base lg:text-sm">
+                  {colecao.titulo}
+                </h3>
+                <p className="mt-0.5 text-[11px] leading-snug text-white/65">
+                  {colecao.descricao}
+                </p>
+                <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-gold">
+                  Ver
+                  <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
                 </span>
               </div>
             </Link>
