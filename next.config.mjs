@@ -6,6 +6,8 @@ const nextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: '**.supabase.co' },
       { protocol: 'https', hostname: '**.supabase.in' },
+      // Fotos enviadas pelo painel (Vercel Blob)
+      { protocol: 'https', hostname: '**.public.blob.vercel-storage.com' },
     ],
   },
 }

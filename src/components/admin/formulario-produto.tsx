@@ -7,7 +7,7 @@ import { useState, useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { salvarProdutoAcao } from '@/app/admin/acoes'
-import { ImagemProduto } from '@/components/loja/imagem-produto'
+import { UploadImagens } from '@/components/admin/upload-imagens'
 import { Botao } from '@/components/ui/botao'
 import { cn } from '@/lib/cn'
 import { COLECOES } from '@/lib/colecoes'
@@ -235,55 +235,9 @@ export function FormularioProduto({ produto }: { produto?: Product }) {
             A primeira imagem é a capa na vitrine. Use fotos verticais (3:4).
           </p>
 
-          {imagens.length > 0 && (
-            <ul className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
-              {imagens.map((url, i) => (
-                <li key={`${url}-${i}`} className="group relative aspect-[3/4] overflow-hidden rounded-xl bg-line/50">
-                  <ImagemProduto src={url} alt={`Imagem ${i + 1}`} sizes="120px" />
-                  {i === 0 && (
-                    <span className="absolute left-1.5 top-1.5 rounded-md bg-gold px-1.5 py-0.5 text-[10px] font-bold text-ink">
-                      Capa
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => setImagens((atual) => atual.filter((_, idx) => idx !== i))}
-                    className="absolute right-1.5 top-1.5 rounded-lg bg-white/90 p-1.5 text-danger opacity-0 transition group-hover:opacity-100 focus-visible:opacity-100"
-                    aria-label={`Remover imagem ${i + 1}`}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <div className="mt-4 flex gap-2">
-            <input
-              type="url"
-              value={novaImagem}
-              onChange={(e) => setNovaImagem(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  adicionarImagem()
-                }
-              }}
-              placeholder="https://…/foto.jpg"
-              aria-label="URL da imagem"
-              className="input-kr flex-1"
-            />
-            <Botao type="button" variante="contorno" onClick={adicionarImagem}>
-              <Plus className="h-4 w-4" />
-              Adicionar
-            </Botao>
+          <div className="mt-4">
+            <UploadImagens imagens={imagens} aoMudar={setImagens} />
           </div>
-
-          <p className="mt-3 flex items-start gap-2 rounded-xl bg-canvas p-3 text-xs text-ink-text">
-            <Upload className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink-muted" />
-            O upload direto para o Supabase Storage entra na Fase 2. Por enquanto, cole a URL
-            pública da foto.
-          </p>
         </section>
 
         {/* ------------------------------------------------------- VARIAÇÕES */}
