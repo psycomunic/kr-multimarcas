@@ -13,12 +13,14 @@ export function CabecalhoPainel({
   acao?: ReactNode
 }) {
   return (
-    <header className="mb-7 flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <h1 className="font-display text-2xl font-bold">{titulo}</h1>
-        {descricao && <p className="mt-1 text-sm text-ink-text">{descricao}</p>}
+    <header className="mb-5 flex flex-col gap-3 sm:mb-7 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-4">
+      <div className="min-w-0">
+        {/* No celular o nome da tela já está no cabeçalho fixo — aqui o título
+            fica menor para não repetir em corpo de página. */}
+        <h1 className="font-display text-xl font-bold sm:text-2xl">{titulo}</h1>
+        {descricao && <p className="mt-1 text-sm leading-relaxed text-ink-text">{descricao}</p>}
       </div>
-      {acao}
+      {acao && <div className="[&>*]:w-full sm:[&>*]:w-auto">{acao}</div>}
     </header>
   )
 }
@@ -39,14 +41,14 @@ export function CartaoKPI({
   return (
     <div
       className={cn(
-        'rounded-2xl border p-5',
+        'rounded-2xl border p-4 sm:p-5',
         destaque ? 'border-transparent bg-ink text-white' : 'border-line bg-white',
       )}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-start justify-between gap-2">
         <p
           className={cn(
-            'text-xs font-medium uppercase tracking-wide',
+            'text-[11px] font-medium uppercase leading-tight tracking-wide sm:text-xs',
             destaque ? 'text-white/60' : 'text-ink-muted',
           )}
         >
@@ -54,16 +56,28 @@ export function CartaoKPI({
         </p>
         <span
           className={cn(
-            'flex h-9 w-9 items-center justify-center rounded-xl',
+            'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg sm:h-9 sm:w-9 sm:rounded-xl',
             destaque ? 'bg-gold text-ink' : 'bg-canvas text-ink-muted',
           )}
         >
           <Icone className="h-4 w-4" />
         </span>
       </div>
-      <p className={cn('mt-3 font-display text-2xl font-bold', destaque && 'text-gold')}>{valor}</p>
+      <p
+        className={cn(
+          'mt-2 font-display text-xl font-bold sm:mt-3 sm:text-2xl',
+          destaque && 'text-gold',
+        )}
+      >
+        {valor}
+      </p>
       {detalhe && (
-        <p className={cn('mt-1 text-xs', destaque ? 'text-white/50' : 'text-ink-muted')}>
+        <p
+          className={cn(
+            'mt-1 text-[11px] leading-snug sm:text-xs',
+            destaque ? 'text-white/50' : 'text-ink-muted',
+          )}
+        >
           {detalhe}
         </p>
       )}

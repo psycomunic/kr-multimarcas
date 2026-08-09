@@ -17,7 +17,9 @@ export default async function PaginaDashboard() {
         descricao="Como a loja está indo hoje."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {/* Dois por linha no celular: quatro cartões empilhados viravam meio
+          metro de rolagem antes de chegar no gráfico. */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <CartaoKPI
           rotulo="Faturamento"
           valor={formatBRL(m.faturamento)}
@@ -127,7 +129,39 @@ export default async function PaginaDashboard() {
               acao={{ rotulo: 'Ver a loja', href: '/' }}
             />
           ) : (
-            <div className="overflow-x-auto">
+            <>
+              {/* Celular: cartões no lugar da tabela */}
+              <ul className="divide-y divide-line md:hidden">
+                {m.pedidosRecentes.map((pedido) => (
+                  <li key={pedido.id}>
+                    <Link
+                      href={`/admin/pedidos/${pedido.id}`}
+                      className="flex items-center justify-between gap-3 px-4 py-3.5 active:bg-canvas"
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-medium">
+                          {pedido.customerName}
+                        </span>
+                        <span className="mt-0.5 flex items-center gap-2 text-xs text-ink-muted">
+                          <span className="font-mono">#{pedido.code}</span>
+                          <span>·</span>
+                          {formatDataCurta(pedido.createdAt)}
+                        </span>
+                      </span>
+                      <span className="shrink-0 text-right">
+                        <span className="block text-sm font-semibold">
+                          {formatBRL(pedido.total)}
+                        </span>
+                        <span className="mt-1 block">
+                          <SeloStatus status={pedido.status} />
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="hidden overflow-x-auto md:block">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-ink-muted">
@@ -163,7 +197,8 @@ export default async function PaginaDashboard() {
                   ))}
                 </tbody>
               </table>
-            </div>
+              </div>
+            </>
           )}
         </CartaoPainel>
 

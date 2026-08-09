@@ -27,7 +27,12 @@ export default async function PaginaPedidos({
         descricao="Todo pedido fechado pelo site aparece aqui com o resumo do WhatsApp."
       />
 
-      <nav className="mb-5 flex flex-wrap gap-2" aria-label="Filtrar por status">
+      {/* Tira rolável no celular: seis chips quebrados em três linhas comiam
+          meia tela antes da lista aparecer. */}
+      <nav
+        className="scroll-suave -mx-4 mb-5 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0"
+        aria-label="Filtrar por status"
+      >
         <Link
           href="/admin/pedidos"
           className={cn(

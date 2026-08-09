@@ -11,7 +11,8 @@ export default async function LayoutPainel({ children }: { children: React.React
       <BarraLateral pedidosNovos={pedidos.length} />
       <div className="min-w-0 flex-1">
         <AvisoDemonstracao contexto="admin" />
-        <div className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</div>
+        {/* `pb-24` no celular reserva o espaço da barra de abas fixa. */}
+        <div className="px-4 pb-24 pt-5 sm:px-6 lg:px-8 lg:pb-10 lg:pt-8">{children}</div>
       </div>
 
       <RegistrarServiceWorker />
