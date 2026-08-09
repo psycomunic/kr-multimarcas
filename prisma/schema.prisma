@@ -1,0 +1,139 @@
+// KR Multimarcas — schema do banco (Postgres / Supabase)
+// `npm run db:push` (dev rápido) ou `npm run db:migrate` (migrations versionadas)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Product {
+  id          String   @id @default(uuid()) @db.Uuid
+  sku         String   @unique
+  slug        String   @unique
+  name        String
+  brand       String
+  gender      String // feminino | masculino | unissex
+  category    String // roupas | calcados | acessorios
+  description String   @db.Text
+  price       Decimal  @db.Decimal(10, 2)
+  salePrice   Decimal? @map("sale_price") @db.Decimal(10, 2)
+  stock       Int      @default(0)
+  active      Boolean  @default(true)
+  featured    Boolean  @default(false)
+
+  // Dimensões e peso — usados na cotação de frete (Fase 2, Melhor Envio)
+  weightGrams Int @default(500) @map("weight_grams")
+  widthCm     Int @default(20) @map("width_cm")
+  heightCm    Int @default(10) @map("height_cm")
+  lengthCm    Int @default(30) @map("length_cm")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  images   ProductImage[]
+  variants ProductVariant[]
+
+  @@index([gender, category])
+  @@index([active, featured])
+  @@map("products")
+}
+
+model ProductVariant {
+  id        String @id @default(uuid()) @db.Uuid
+  productId String @map("product_id") @db.Uuid
+  size      String
+  colorName String @map("color_name")
+  colorHex  String @map("color_hex")
+  stock     Int    @default(0)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_variants")
+}
+
+model ProductImage {
+  id        String @id @default(uuid()) @db.Uuid
+  productId String @map("product_id") @db.Uuid
+  url       String
+  position  Int    @default(0)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_images")
+}
+
+model Order {
+  id              String   @id @default(uuid()) @db.Uuid
+  code            String   @unique // KR000123
+  customerName    String   @map("customer_name")
+  customerPhone   String   @map("customer_phone")
+  customerCep     String   @map("customer_cep")
+  customerAddress String   @map("customer_address")
+  customerCity    String   @map("customer_city")
+  paymentMethod   String   @map("payment_method") // pix | cartao | combinar
+  note            String?  @db.Text
+  subtotal        Decimal  @db.Decimal(10, 2)
+  shipping        Decimal  @db.Decimal(10, 2)
+  total           Decimal  @db.Decimal(10, 2)
+  status          String   @default("novo") // novo | pago | enviado | entregue | cancelado
+  channel         String   @default("whatsapp")
+  trackingCode    String?  @map("tracking_code")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  items OrderItem[]
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(uuid()) @db.Uuid
+  orderId   String  @map("order_id") @db.Uuid
+  productId String? @map("product_id") @db.Uuid
+  name      String
+  brand     String
+  size      String
+  colorName String  @map("color_name")
+  qty       Int
+  unitPrice Decimal @map("unit_price") @db.Decimal(10, 2)
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+/// Linha única de configuração da loja (id fixo = "default")
+model Settings {
+  id                    String   @id @default("default")
+  storeName             String   @default("KR Multimarcas") @map("store_name")
+  whatsapp              String   @default("5547999999999")
+  freeShippingThreshold Decimal  @default(399) @map("free_shipping_threshold") @db.Decimal(10, 2)
+  brandColor            String   @default("#FFD131") @map("brand_color")
+  brandColor2           String   @default("#F5A623") @map("brand_color_2")
+  originCep             String   @default("89000000") @map("origin_cep")
+
+  // Integrações (chaves ficam apenas no servidor — nunca expostas ao client)
+  melhorEnvioEnabled Boolean @default(false) @map("melhor_envio_enabled")
+  melhorEnvioToken   String? @map("melhor_envio_token")
+  mercadoPagoEnabled Boolean @default(false) @map("mercado_pago_enabled")
+  mercadoPagoToken   String? @map("mercado_pago_token")
+  blingEnabled       Boolean @default(false) @map("bling_enabled")
+  blingToken         String? @map("bling_token")
+  metaCatalogEnabled Boolean @default(false) @map("meta_catalog_enabled")
+  metaCatalogId      String? @map("meta_catalog_id")
+  metaAccessToken    String? @map("meta_access_token")
+  metaPixelId        String? @map("meta_pixel_id")
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}

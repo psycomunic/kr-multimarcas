@@ -1,0 +1,103 @@
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+
+import { CardProduto } from '@/components/loja/card-produto'
+import { DetalheProduto } from '@/components/loja/detalhe-produto'
+import { buscarProdutoPorSlug, buscarRelacionados } from '@/lib/repo'
+import { estoqueTotal, precoFinal, LABEL_CATEGORIA } from '@/lib/types'
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string }
+}): Promise<Metadata> {
+  const produto = await buscarProdutoPorSlug(params.slug)
+  if (!produto) return { title: 'Produto não encontrado' }
+
+  const descricao = produto.description.slice(0, 155)
+  const imagem = produto.images[0]?.url
+
+  return {
+    title: `${produto.name} — ${produto.brand}`,
+    description: descricao,
+    alternates: { canonical: `/produto/${produto.slug}` },
+    openGraph: {
+      type: 'website',
+      title: `${produto.name} — ${produto.brand}`,
+      description: descricao,
+      url: `${siteUrl}/produto/${produto.slug}`,
+      images: imagem ? [{ url: imagem, width: 900, height: 1200, alt: produto.name }] : undefined,
+    },
+  }
+}
+
+export default async function PaginaProduto({ params }: { params: { slug: string } }) {
+  const produto = await buscarProdutoPorSlug(params.slug)
+  if (!produto || !produto.active) notFound()
+
+  const relacionados = await buscarRelacionados(produto, 4)
+  const urlPublica = `${siteUrl}/produto/${produto.slug}`
+
+  // Dados estruturados schema.org/Product — habilita rich results no Google.
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: produto.name,
+    description: produto.description,
+    sku: produto.sku,
+    brand: { '@type': 'Brand', name: produto.brand },
+    image: produto.images.map((i) => i.url),
+    category: LABEL_CATEGORIA[produto.category],
+    offers: {
+      '@type': 'Offer',
+      url: urlPublica,
+      priceCurrency: 'BRL',
+      price: precoFinal(produto).toFixed(2),
+      availability:
+        estoqueTotal(produto) > 0
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/OutOfStock',
+      itemCondition: 'https://schema.org/NewCondition',
+    },
+  }
+
+  return (
+    <div className="container-kr py-8 sm:py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      <nav aria-label="Trilha de navegação" className="mb-6 text-xs text-ink-muted">
+        <Link href="/" className="transition hover:text-ink">
+          Início
+        </Link>
+        <span className="mx-1.5">/</span>
+        <Link
+          href={`/loja?categoria=${produto.category}`}
+          className="transition hover:text-ink"
+        >
+          {LABEL_CATEGORIA[produto.category]}
+        </Link>
+        <span className="mx-1.5">/</span>
+        <span className="text-ink-text">{produto.name}</span>
+      </nav>
+
+      <DetalheProduto produto={produto} urlPublica={urlPublica} />
+
+      {relacionados.length > 0 && (
+        <section className="mt-20">
+          <h2 className="titulo-secao">Você também pode gostar</h2>
+          <div className="mt-7 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
+            {relacionados.map((p) => (
+              <CardProduto key={p.id} produto={p} />
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  )
+}

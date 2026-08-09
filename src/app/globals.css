@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===================================================================
+   KR MULTIMARCAS — tokens da marca
+   Ouro é acento, nunca fundo de texto claro: sobre ouro o texto é preto.
+   =================================================================== */
+:root {
+  --kr-gold: #ffd131;
+  --kr-amber: #f5a623;
+  --kr-ink: #0b0b0d;
+  --kr-ink-soft: #151519;
+  --kr-text: #3a3a42;
+  --kr-muted: #8a8a95;
+  --kr-line: #ececef;
+  --kr-canvas: #fafaf8;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-canvas text-ink font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display tracking-tight;
+  }
+
+  /* Foco visível e consistente — acessibilidade */
+  :focus-visible {
+    @apply outline-none ring-2 ring-gold ring-offset-2 ring-offset-white;
+  }
+
+  ::selection {
+    background: var(--kr-gold);
+    color: var(--kr-ink);
+  }
+}
+
+@layer components {
+  .container-kr {
+    @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8;
+  }
+
+  .titulo-secao {
+    @apply font-display text-2xl font-semibold tracking-tight sm:text-3xl;
+  }
+
+  .card-kr {
+    @apply rounded-2xl border border-line bg-white shadow-soft;
+  }
+
+  /* Rótulo de campo do formulário */
+  .label-kr {
+    @apply mb-1.5 block text-sm font-medium text-ink;
+  }
+
+  .input-kr {
+    @apply w-full rounded-xl border border-line bg-white px-4 py-2.5 text-sm text-ink
+           placeholder:text-ink-muted transition
+           focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/40;
+  }
+
+  .input-kr[aria-invalid='true'] {
+    @apply border-danger focus:border-danger focus:ring-danger/30;
+  }
+
+  .erro-campo {
+    @apply mt-1 text-xs font-medium text-danger;
+  }
+
+  /* Barra de rolagem discreta para trilhos horizontais */
+  .scroll-suave {
+    scrollbar-width: thin;
+    scrollbar-color: var(--kr-line) transparent;
+  }
+
+  .scroll-suave::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .scroll-suave::-webkit-scrollbar-thumb {
+    background: var(--kr-line);
+    border-radius: 999px;
+  }
+}
+
+@layer utilities {
+  .texto-equilibrado {
+    text-wrap: balance;
+  }
+
+  /* Efeito de carregamento dos skeletons */
+  .skeleton {
+    @apply relative overflow-hidden bg-line/60;
+  }
+
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+    animation: shimmer 1.4s infinite;
+  }
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+}
