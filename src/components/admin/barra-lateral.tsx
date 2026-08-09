@@ -169,7 +169,7 @@ export function BarraLateral({ pedidosNovos }: { pedidosNovos: number }) {
     <>
       {/* Cabeçalho do celular: marca + nome da tela atual */}
       <header
-        className="sticky top-0 z-30 flex items-center gap-3 bg-ink px-4 py-3 text-white lg:hidden"
+        className="sticky top-0 z-30 flex w-full items-center gap-3 bg-ink px-4 py-3 text-white lg:hidden"
         style={{ paddingTop: 'calc(0.75rem + env(safe-area-inset-top))' }}
       >
         <Link href="/admin" aria-label="Início do painel">
