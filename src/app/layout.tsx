@@ -38,8 +38,12 @@ export const metadata: Metadata = {
   },
   twitter: { card: 'summary_large_image' },
   icons: {
-    icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
-    apple: '/favicon.svg',
+    icon: [
+      { url: '/icone-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icone-512.png', sizes: '512x512', type: 'image/png' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/icone-192.png',
   },
   manifest: '/manifest.webmanifest',
 }

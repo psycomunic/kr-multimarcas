@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, MessageCircle, Sparkles } from 'lucide-react'
 
@@ -55,28 +56,40 @@ export default async function PaginaInicial() {
     <>
       {/* ---------------------------------------------------------------- HERO */}
       <section className="relative overflow-hidden bg-ink text-white">
-        <div
-          className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-gold/20 blur-3xl"
-          aria-hidden="true"
-        />
-        <div className="container-kr relative grid gap-10 py-14 lg:grid-cols-2 lg:items-center lg:py-20">
+        {/* Banner de campanha. No mobile o corte é deslocado para a direita
+            (`object-[58%]`) porque a arte tem a logo à esquerda e a peça em
+            destaque no centro — cortando pelo meio, o produto sumiria. */}
+        <Link href="/loja" className="group block" aria-label="Ver a coleção Polo Street">
+          <div className="relative aspect-[16/10] w-full overflow-hidden sm:aspect-[21/9] lg:aspect-[2000/712]">
+            <Image
+              src="/BANNER-HOME.jpg"
+              alt="Coleção Polo Street — KR Multimarcas"
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover object-[58%_center] transition-transform duration-700 group-hover:scale-[1.02] lg:object-center"
+            />
+          </div>
+        </Link>
+
+        <div className="container-kr relative grid gap-8 py-10 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-12 lg:py-12">
           <div className="animate-fade-up">
             <Selo tom="ouro" className="gap-1.5">
               <Sparkles className="h-3.5 w-3.5" />
               Nova coleção
             </Selo>
 
-            <h1 className="texto-equilibrado mt-5 font-display text-4xl font-bold leading-[1.08] sm:text-5xl lg:text-6xl">
+            <h1 className="texto-equilibrado mt-4 font-display text-3xl font-bold leading-[1.1] sm:text-4xl lg:text-5xl">
               Peça boa, atendimento{' '}
               <span className="bg-gold-gradient bg-clip-text text-transparent">de gente</span>.
             </h1>
 
-            <p className="mt-5 max-w-lg text-base leading-relaxed text-white/70">
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-white/70">
               Roupas, calçados e acessórios das marcas que a gente escolhe a dedo. Você monta a
               sacola no site e fecha a compra no WhatsApp, falando com uma pessoa de verdade.
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-7 flex flex-wrap gap-3">
               <BotaoLink href="/loja" tamanho="lg">
                 Ver coleção
                 <ArrowRight className="h-4 w-4" />
@@ -91,49 +104,24 @@ export default async function PaginaInicial() {
                 Comprar pelo WhatsApp
               </a>
             </div>
-
-            <dl className="mt-10 flex flex-wrap gap-x-8 gap-y-4">
-              {[
-                { rotulo: 'Frete grátis acima de', valor: formatBRL(configuracoes.freeShippingThreshold) },
-                { rotulo: 'Envio para', valor: 'todo o Brasil' },
-                { rotulo: 'Troca fácil em', valor: '7 dias' },
-              ].map((item) => (
-                <div key={item.rotulo}>
-                  <dt className="text-[11px] uppercase tracking-[0.14em] text-white/45">
-                    {item.rotulo}
-                  </dt>
-                  <dd className="mt-0.5 font-display text-sm font-semibold text-gold">
-                    {item.valor}
-                  </dd>
-                </div>
-              ))}
-            </dl>
           </div>
 
-          {/* Mosaico com as primeiras peças em destaque */}
-          <div className="grid grid-cols-2 gap-4">
-            {destaques.slice(0, 2).map((produto, i) => (
-              <Link
-                key={produto.id}
-                href={`/produto/${produto.slug}`}
-                className={`group relative overflow-hidden rounded-3xl bg-ink-soft ${
-                  i === 0 ? 'aspect-[3/4] translate-y-6' : 'aspect-[3/4]'
-                }`}
-              >
-                <ImagemProduto
-                  src={produto.images[0]?.url}
-                  alt={produto.name}
-                  priority
-                  sizes="(min-width: 1024px) 25vw, 50vw"
-                  className="transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/90 to-transparent p-4">
-                  <p className="text-[11px] uppercase tracking-wider text-gold">{produto.brand}</p>
-                  <p className="line-clamp-1 text-sm font-medium">{produto.name}</p>
-                </div>
-              </Link>
+          <dl className="grid grid-cols-3 gap-x-6 gap-y-4 border-t border-white/10 pt-6 lg:border-l lg:border-t-0 lg:pl-12 lg:pt-0">
+            {[
+              { rotulo: 'Frete grátis acima de', valor: formatBRL(configuracoes.freeShippingThreshold) },
+              { rotulo: 'Envio para', valor: 'todo o Brasil' },
+              { rotulo: 'Troca fácil em', valor: '7 dias' },
+            ].map((item) => (
+              <div key={item.rotulo} className="lg:whitespace-nowrap">
+                <dt className="text-[11px] uppercase leading-tight tracking-[0.14em] text-white/45">
+                  {item.rotulo}
+                </dt>
+                <dd className="mt-0.5 font-display text-sm font-semibold text-gold">
+                  {item.valor}
+                </dd>
+              </div>
             ))}
-          </div>
+          </dl>
         </div>
       </section>
 
