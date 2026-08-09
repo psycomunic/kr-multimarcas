@@ -91,7 +91,11 @@ export function DetalheProduto({ produto, urlPublica }: { produto: Product; urlP
   return (
     <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
       {/* ------------------------------------------------------------ GALERIA */}
-      <div className="lg:sticky lg:top-28 lg:self-start">
+      {/* `min-w-0` é obrigatório: item de grid tem `min-width: auto`, então a
+          tira de miniaturas com `overflow-x-auto` esticava a coluna até a
+          largura de todas as fotos e a página inteira rolava para o lado no
+          celular. Com `min-w-0` a coluna respeita o viewport e só a tira rola. */}
+      <div className="min-w-0 lg:sticky lg:top-28 lg:self-start">
         <div className="relative aspect-[3/4] overflow-hidden rounded-3xl bg-line/40">
           <ImagemProduto
             src={imagens[imagemAtiva]?.url}
@@ -131,7 +135,7 @@ export function DetalheProduto({ produto, urlPublica }: { produto: Product; urlP
         </div>
 
         {imagens.length > 1 && (
-          <div className="scroll-suave mt-3 flex gap-3 overflow-x-auto pb-1">
+          <div className="scroll-suave mt-3 flex max-w-full gap-3 overflow-x-auto pb-1">
             {imagens.map((imagem, i) => (
               <button
                 key={imagem.id}
@@ -152,7 +156,7 @@ export function DetalheProduto({ produto, urlPublica }: { produto: Product; urlP
       </div>
 
       {/* ------------------------------------------------------------- COMPRA */}
-      <div>
+      <div className="min-w-0">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-muted">
           {produto.brand}
         </p>
@@ -298,7 +302,7 @@ export function DetalheProduto({ produto, urlPublica }: { produto: Product; urlP
             onClick={aoAdicionar}
             disabled={!disponivel}
             tamanho="lg"
-            className="min-w-[200px] flex-1"
+            className="min-w-0 flex-1 basis-48"
           >
             {adicionado ? (
               <>

@@ -147,7 +147,7 @@ export default async function PaginaCatalogo({ searchParams }: { searchParams: B
           />
         </div>
 
-        <div>
+        <div className="min-w-0">
           {resultado.itens.length === 0 ? (
             <div className="card-kr flex flex-col items-center gap-4 px-6 py-16 text-center">
               <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-canvas">

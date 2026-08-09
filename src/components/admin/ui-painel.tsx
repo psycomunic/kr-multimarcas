@@ -83,7 +83,9 @@ export function CartaoPainel({
   className?: string
 }) {
   return (
-    <section className={cn('rounded-2xl border border-line bg-white', className)}>
+    // `min-w-0` evita que tabelas com rolagem horizontal estiquem a coluna do
+    // grid e empurrem a página inteira para o lado.
+    <section className={cn('min-w-0 rounded-2xl border border-line bg-white', className)}>
       <header className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
         <h2 className="font-display text-base font-semibold">{titulo}</h2>
         {acao}

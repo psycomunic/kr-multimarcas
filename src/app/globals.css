@@ -24,6 +24,10 @@
 
   body {
     @apply bg-canvas text-ink font-sans antialiased;
+    /* Rede de segurança contra rolagem lateral no celular. `clip` em vez de
+       `hidden` de propósito: `hidden` cria contexto de rolagem e quebraria
+       todo `position: sticky` da loja e do painel. */
+    overflow-x: clip;
   }
 
   h1,
