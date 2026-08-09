@@ -9,6 +9,7 @@ import { excluirProdutoAcao } from '@/app/admin/acoes'
 import { ImagemProduto } from '@/components/loja/imagem-produto'
 import { Botao } from '@/components/ui/botao'
 import { Selo } from '@/components/ui/selo'
+import { cn } from '@/lib/cn'
 import { formatBRL } from '@/lib/format'
 import { estoqueTotal, precoFinal, LABEL_CATEGORIA, LABEL_GENERO, type Product } from '@/lib/types'
 
@@ -50,7 +51,68 @@ export function TabelaProdutos({ produtos, busca }: { produtos: Product[]; busca
       </form>
 
       <div className="overflow-hidden rounded-2xl border border-line bg-white">
-        <div className="overflow-x-auto">
+        {/* Celular: cartões em vez da tabela de 6 colunas. */}
+        <ul className="divide-y divide-line md:hidden">
+          {produtos.map((produto) => {
+            const estoque = estoqueTotal(produto)
+            const final = precoFinal(produto)
+            return (
+              <li key={produto.id} className="flex gap-3 p-4">
+                <Link
+                  href={`/admin/produtos/${produto.id}`}
+                  className="relative h-20 w-16 shrink-0 overflow-hidden rounded-lg bg-line/50"
+                >
+                  <ImagemProduto src={produto.images[0]?.url} alt={produto.name} sizes="64px" />
+                </Link>
+
+                <div className="min-w-0 flex-1">
+                  <Link
+                    href={`/admin/produtos/${produto.id}`}
+                    className="block truncate text-sm font-medium"
+                  >
+                    {produto.name}
+                  </Link>
+                  <p className="truncate text-xs text-ink-muted">
+                    {produto.brand} · <span className="font-mono">{produto.sku}</span>
+                  </p>
+
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                    <Selo tom={produto.active ? 'sucesso' : 'neutro'}>
+                      {produto.active ? 'Ativo' : 'Inativo'}
+                    </Selo>
+                    {produto.featured && <Selo tom="ouro">Destaque</Selo>}
+                    <span
+                      className={cn(
+                        'text-xs font-medium',
+                        estoque === 0
+                          ? 'text-danger'
+                          : estoque <= 6
+                            ? 'text-warning'
+                            : 'text-ink-muted',
+                      )}
+                    >
+                      {estoque} un.
+                    </span>
+                  </div>
+
+                  <div className="mt-2 flex items-center justify-between gap-2">
+                    <span className="font-display text-sm font-semibold">{formatBRL(final)}</span>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmando(produto)}
+                      className="rounded-lg p-2 text-ink-muted transition active:bg-danger/10 active:text-danger"
+                      aria-label={`Excluir ${produto.name}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+
+        <div className="hidden overflow-x-auto md:block">
           <table className="w-full min-w-[720px] text-sm">
             <thead>
               <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-ink-muted">

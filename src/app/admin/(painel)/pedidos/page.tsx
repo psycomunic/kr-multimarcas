@@ -65,7 +65,40 @@ export default async function PaginaPedidos({
             acao={filtro ? { rotulo: 'Ver todos', href: '/admin/pedidos' } : undefined}
           />
         ) : (
-          <div className="overflow-x-auto">
+          <>
+            {/* Celular: cartões. Tabela de 6 colunas em tela pequena vira
+                rolagem lateral e leitura ruim — quem despacha pedido no
+                balcão precisa bater o olho e entender. */}
+            <ul className="divide-y divide-line md:hidden">
+              {pedidos.map((pedido) => (
+                <li key={pedido.id}>
+                  <Link
+                    href={`/admin/pedidos/${pedido.id}`}
+                    className="block px-4 py-4 transition active:bg-canvas"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <span className="font-mono text-xs font-semibold">#{pedido.code}</span>
+                      <SeloStatus status={pedido.status} />
+                    </div>
+
+                    <p className="mt-1.5 truncate text-sm font-medium">{pedido.customerName}</p>
+                    <p className="text-xs text-ink-muted">{pedido.customerPhone}</p>
+
+                    <div className="mt-2.5 flex items-end justify-between gap-3">
+                      <span className="text-xs text-ink-muted">
+                        {pedido.items.reduce((acc, i) => acc + i.qty, 0)} un. ·{' '}
+                        {formatData(pedido.createdAt)}
+                      </span>
+                      <span className="font-display text-base font-semibold">
+                        {formatBRL(pedido.total)}
+                      </span>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            <div className="hidden overflow-x-auto md:block">
             <table className="w-full min-w-[720px] text-sm">
               <thead>
                 <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-ink-muted">
@@ -106,7 +139,8 @@ export default async function PaginaPedidos({
                 ))}
               </tbody>
             </table>
-          </div>
+            </div>
+          </>
         )}
       </div>
     </>

@@ -1,0 +1,20 @@
+{
+  "name": "KR Painel — gestão da loja",
+  "short_name": "KR Painel",
+  "description": "Cadastro de produtos, pedidos e estoque da KR Multimarcas.",
+  "start_url": "/admin",
+  "scope": "/admin",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B0B0D",
+  "theme_color": "#0B0B0D",
+  "icons": [
+    { "src": "/icone-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Novo produto", "url": "/admin/produtos/novo" },
+    { "name": "Pedidos", "url": "/admin/pedidos" },
+    { "name": "Estoque", "url": "/admin/estoque" }
+  ]
+}

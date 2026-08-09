@@ -1,4 +1,5 @@
 import { BarraLateral } from '@/components/admin/barra-lateral'
+import { InstalarApp, RegistrarServiceWorker } from '@/components/admin/instalar-app'
 import { AvisoDemonstracao } from '@/components/loja/aviso-demonstracao'
 import { listarPedidos } from '@/lib/repo'
 
@@ -12,6 +13,9 @@ export default async function LayoutPainel({ children }: { children: React.React
         <AvisoDemonstracao contexto="admin" />
         <div className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</div>
       </div>
+
+      <RegistrarServiceWorker />
+      <InstalarApp />
     </div>
   )
 }
