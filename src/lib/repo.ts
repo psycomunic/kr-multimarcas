@@ -12,6 +12,8 @@
  * catálogo crescer muito, mover `aplicarFiltros` para SQL é o próximo passo.
  */
 
+import { cache } from 'react'
+
 import { dbAtivo, prisma } from './db'
 import { demoDb } from './demo-store'
 import { nomeDaCor } from './cores'
@@ -268,52 +270,57 @@ function aplicarFiltros(produtos: Product[], f: FiltrosProduto): ResultadoCatalo
   }
 }
 
-/** Carrega o universo de produtos ativos (filtro grosso feito no banco). */
-async function carregarAtivos(f: FiltrosProduto): Promise<Product[]> {
-  if (!dbAtivo) return demoDb().produtos
-
-  const where: Record<string, unknown> = { active: true }
-  if (f.genero) where.gender = { in: [f.genero, 'unissex'] }
-  if (f.categoria) where.category = f.categoria
+/**
+ * Todos os produtos ativos, com imagens e variações.
+ *
+ * `cache()` do React memoriza por requisição: uma página que monta o menu,
+ * conta categorias e busca relacionados fazia três viagens iguais ao banco —
+ * agora faz uma. Com o Postgres em outra região, cada viagem custa caro.
+ *
+ * Carregar tudo e filtrar em memória é deliberado: no porte desta loja é mais
+ * rápido que várias consultas, e mantém demo e banco com o mesmo comportamento.
+ */
+const carregarAtivos = cache(async (): Promise<Product[]> => {
+  if (!dbAtivo) return demoDb().produtos.filter((p) => p.active)
 
   const linhas = await prisma().product.findMany({
-    where,
+    where: { active: true },
     include: incluirRelacoes,
     orderBy: { createdAt: 'desc' },
   })
   return (linhas as unknown as LinhaProduto[]).map(mapProduto)
-}
+})
 
 export async function listarCatalogo(f: FiltrosProduto = {}): Promise<ResultadoCatalogo> {
-  const produtos = await carregarAtivos(f)
+  const produtos = await carregarAtivos()
   return aplicarFiltros(produtos, f)
 }
 
 export async function produtosEmDestaque(limite = 8): Promise<Product[]> {
-  const produtos = await carregarAtivos({})
+  const produtos = await carregarAtivos()
   return produtos
-    .filter((p) => p.active && p.featured)
+    .filter((p) => p.featured)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .slice(0, limite)
 }
 
 export async function produtosEmOferta(limite = 8): Promise<Product[]> {
-  const produtos = await carregarAtivos({})
+  const produtos = await carregarAtivos()
   return produtos
-    .filter((p) => p.active && precoFinal(p) < p.price)
+    .filter((p) => precoFinal(p) < p.price)
     .sort((a, b) => precoFinal(a) / a.price - precoFinal(b) / b.price)
     .slice(0, limite)
 }
 
-export async function buscarProdutoPorSlug(slug: string): Promise<Product | null> {
+export const buscarProdutoPorSlug = cache(async (slug: string): Promise<Product | null> => {
   if (!dbAtivo) return demoDb().produtos.find((p) => p.slug === slug) ?? null
 
   const linha = await prisma().product.findUnique({ where: { slug }, include: incluirRelacoes })
   return linha ? mapProduto(linha as unknown as LinhaProduto) : null
-}
+})
 
 export async function buscarRelacionados(produto: Product, limite = 4): Promise<Product[]> {
-  const produtos = await carregarAtivos({})
+  const produtos = await carregarAtivos()
   return produtos
     .filter((p) => p.active && p.id !== produto.id && p.category === produto.category)
     .sort((a, b) => (a.gender === produto.gender ? -1 : 1) - (b.gender === produto.gender ? -1 : 1))
@@ -322,7 +329,7 @@ export async function buscarRelacionados(produto: Product, limite = 4): Promise<
 
 /** Quantos produtos ativos existem em cada categoria da loja. */
 export async function contarPorColecao(): Promise<Record<string, number>> {
-  const produtos = await carregarAtivos({})
+  const produtos = await carregarAtivos()
   const contagem: Record<string, number> = {}
   for (const p of produtos) {
     if (!p.active || !p.colecao) continue
@@ -333,7 +340,7 @@ export async function contarPorColecao(): Promise<Record<string, number>> {
 
 /** Todos os slugs ativos — usado pelo sitemap. */
 export async function listarSlugs(): Promise<{ slug: string; updatedAt: string }[]> {
-  const produtos = await carregarAtivos({})
+  const produtos = await carregarAtivos()
   return produtos.filter((p) => p.active).map((p) => ({ slug: p.slug, updatedAt: p.updatedAt }))
 }
 
@@ -684,20 +691,23 @@ export async function atualizarPedido(
 // Configurações
 // ---------------------------------------------------------------------------
 
-export async function obterConfiguracoes(): Promise<Settings> {
+export const obterConfiguracoes = cache(async (): Promise<Settings> => {
   if (!dbAtivo) return { ...demoDb().configuracoes }
 
-  const linha = await prisma().settings.upsert({
-    where: { id: 'default' },
-    create: {
-      id: 'default',
-      storeName: process.env.NEXT_PUBLIC_STORE_NAME || 'KR Multimarcas',
-      whatsapp: process.env.NEXT_PUBLIC_STORE_WHATSAPP || '5547999999999',
-      freeShippingThreshold: Number(process.env.NEXT_PUBLIC_FREE_SHIPPING_THRESHOLD || 399),
-      originCep: process.env.ORIGIN_CEP || '89000000',
-    },
-    update: {},
-  })
+  // Leitura primeiro: o upsert que estava aqui fazia uma ESCRITA no banco a
+  // cada página carregada, só para garantir a linha padrão que quase sempre
+  // já existe. Agora só escreve na primeira vez.
+  const linha =
+    (await prisma().settings.findUnique({ where: { id: 'default' } })) ??
+    (await prisma().settings.create({
+      data: {
+        id: 'default',
+        storeName: process.env.NEXT_PUBLIC_STORE_NAME || 'KR Multimarcas',
+        whatsapp: process.env.NEXT_PUBLIC_STORE_WHATSAPP || '5547999999999',
+        freeShippingThreshold: Number(process.env.NEXT_PUBLIC_FREE_SHIPPING_THRESHOLD || 399),
+        originCep: process.env.ORIGIN_CEP || '89000000',
+      },
+    }))
 
   return {
     storeName: linha.storeName,
@@ -712,7 +722,7 @@ export async function obterConfiguracoes(): Promise<Settings> {
     metaCatalogEnabled: linha.metaCatalogEnabled,
     metaPixelId: linha.metaPixelId,
   }
-}
+})
 
 export type ConfiguracoesInput = Partial<Settings> & {
   melhorEnvioToken?: string

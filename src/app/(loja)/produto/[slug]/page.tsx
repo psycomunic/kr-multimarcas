@@ -5,11 +5,26 @@ import { notFound } from 'next/navigation'
 import { CardProduto } from '@/components/loja/card-produto'
 import { DetalheProduto } from '@/components/loja/detalhe-produto'
 import { formatBRL } from '@/lib/format'
-import { buscarProdutoPorSlug, buscarRelacionados } from '@/lib/repo'
+import { buscarProdutoPorSlug, buscarRelacionados, listarSlugs } from '@/lib/repo'
 import { urlDoSite } from '@/lib/site'
 import { estoqueTotal, precoFinal, LABEL_CATEGORIA } from '@/lib/types'
 
 const siteUrl = urlDoSite
+
+/**
+ * As páginas de produto são geradas no build e revalidadas a cada 5 minutos.
+ * Antes cada visita disparava consultas ao Postgres em outra região — ~2,3s de
+ * espera no clique. Servida do cache, a página sai em milissegundos.
+ *
+ * Preço desatualizado por até 5 min não é risco: o checkout sempre recalcula o
+ * valor a partir do banco antes de gravar o pedido.
+ */
+export const revalidate = 300
+
+export async function generateStaticParams() {
+  const produtos = await listarSlugs()
+  return produtos.map((p) => ({ slug: p.slug }))
+}
 
 export async function generateMetadata({
   params,

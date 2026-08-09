@@ -3,15 +3,17 @@ import { notFound } from 'next/navigation'
 import { ArrowLeft, MapPin, MessageCircle, Phone } from 'lucide-react'
 
 import { AcoesPedido } from '@/components/admin/acoes-pedido'
+import { MensagensPedido } from '@/components/admin/mensagens-pedido'
 import { CartaoPainel } from '@/components/admin/ui-painel'
 import { SeloStatus } from '@/components/ui/selo'
 import { formatBRL, formatData } from '@/lib/format'
-import { obterPedido } from '@/lib/repo'
+import { modeloDoStatus } from '@/lib/mensagens'
+import { obterConfiguracoes, obterPedido } from '@/lib/repo'
 import { LABEL_PAGAMENTO } from '@/lib/types'
 import { linkWhatsApp, mensagemParaCliente, mensagemPedido } from '@/lib/whatsapp'
 
 export default async function PaginaPedido({ params }: { params: { id: string } }) {
-  const pedido = await obterPedido(params.id)
+  const [pedido, configuracoes] = await Promise.all([obterPedido(params.id), obterConfiguracoes()])
   if (!pedido) notFound()
 
   // Conversa com o cliente (número dele), não com a loja.
@@ -126,8 +128,16 @@ export default async function PaginaPedido({ params }: { params: { id: string } 
         <div className="space-y-6">
           <CartaoPainel titulo="Gestão">
             <div className="p-5">
-              <AcoesPedido pedido={pedido} />
+              <AcoesPedido pedido={pedido} nomeLoja={configuracoes.storeName} />
             </div>
+          </CartaoPainel>
+
+          <CartaoPainel titulo="Mensagens para o cliente">
+            <MensagensPedido
+              pedido={pedido}
+              nomeLoja={configuracoes.storeName}
+              destaque={modeloDoStatus(pedido.status)?.id}
+            />
           </CartaoPainel>
 
           <CartaoPainel titulo="Mensagem enviada pelo cliente">
